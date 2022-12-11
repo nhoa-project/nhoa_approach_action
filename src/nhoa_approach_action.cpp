@@ -57,6 +57,7 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   n.param<std::string>("robot_frame", robot_base_frame_, "base_link");
   n.param<std::string>("global_frame", global_frame_, "map");
 
+  ros::NodeHandle nh;
   if (!test_) {
     std::string hri_id_topic = "";
     n.param<std::string>("hri_ids_topic", hri_id_topic,
@@ -70,8 +71,6 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   // dynamic_reconfigure::Server<upo_navigation_macro_actions::NavigationMacroActionsConfig>::CallbackType
   // cb = boost::bind(&Upo_navigation_macro_actions::reconfigureCB, this, _1,
   // _2); dsrv_->setCallback(cb);
-
-  ros::NodeHandle nh;
 
   // people_sub_ = nh.subscribe<people_msgs::People>(
   //    people_topic.c_str(), 1, &Nhoa_approach_action::peopleCallback, this);
@@ -127,12 +126,12 @@ move_base/status	[actionlib_msgs::GoalStatusArray]
 move_base/result	[move_base_msgs::MoveBaseAcionResult]
 */
 
-bool Nhoa_approach_action::getPersonfromHRI(
+bool Nhoa_approach_action::getPersonFromHRI(
     const std::string id, geometry_msgs::TransformStamped &p) {
 
   // Get the id list
   lmutex_.lock();
-  hri_msgs::IdsList list = id_list_;
+  std::vector<std::string> list = id_list_;
   lmutex_.unlock();
   std::string id_frame = "body_";
   // first, check the target_id
@@ -144,7 +143,7 @@ bool Nhoa_approach_action::getPersonfromHRI(
       return false;
   } else {
     // we use directly the id to get the TF
-    id_frame = id_frame + id
+    id_frame = id_frame + id;
   }
   // Now, we look for the frame in robot base frame
   return getPerson(id_frame, p);
