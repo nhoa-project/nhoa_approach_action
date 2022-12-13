@@ -146,9 +146,14 @@ include_directories(
 )
 
 ## Declare a C++ library
-# add_library(upo_navigation_macro_actions
-#   src/${PROJECT_NAME}/upo_navigation_macro_actions.cpp
-# )
+add_library(nhoa_approach_action
+  src/nhoa_approach_action.cpp
+)
+target_link_libraries(nhoa_approach_action
+    ${Boost_LIBRARIES}
+    ${catkin_LIBRARIES}
+    )
+add_dependencies(nhoa_approach_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -156,27 +161,28 @@ include_directories(
 # add_dependencies(upo_navigation_macro_actions ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(nhoa_approach_action 
-	src/nhoa_approach_action.cpp
+add_executable(nhoa_approach_action_node 
 	src/nhoa_approach_action_node.cpp)
+
+add_dependencies(nhoa_approach_action_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(nhoa_approach_action_node nhoa_approach_action)
+set_target_properties(nhoa_approach_action_node PROPERTIES OUTPUT_NAME nhoa_approach_action)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-#add_dependencies(indires_macro_actions indires_macro_actions_gencfg)
-add_dependencies(nhoa_approach_action nhoa_approach_action_gencpp)
-add_dependencies(nhoa_approach_action geometry_msgs_gencpp)
-#add_dependencies(nhoa_approach_action people_msgs_gencpp)
-add_dependencies(nhoa_approach_action hri_msgs_gencpp)
-add_dependencies(nhoa_approach_action nav_msgs_gencpp)
-add_dependencies(nhoa_approach_action move_base_msgs_gencpp)
-add_dependencies(nhoa_approach_action actionlib_msgs_gencpp)
-add_dependencies(nhoa_approach_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_dependencies(nhoa_approach_action nhoa_approach_action_gencpp)
+#add_dependencies(nhoa_approach_action geometry_msgs_gencpp)
+#add_dependencies(nhoa_approach_action hri_msgs_gencpp)
+#add_dependencies(nhoa_approach_action nav_msgs_gencpp)
+#add_dependencies(nhoa_approach_action move_base_msgs_gencpp)
+#add_dependencies(nhoa_approach_action actionlib_msgs_gencpp)
+#add_dependencies(nhoa_approach_action ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(nhoa_approach_action
-   ${catkin_LIBRARIES}
+#target_link_libraries(nhoa_approach_action
+#   ${catkin_LIBRARIES}
    #${OpenCV_LIBRARIES}
-)
+#)
 
 #############
 ## Install ##
@@ -193,11 +199,18 @@ target_link_libraries(nhoa_approach_action
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS nhoa_approach_action nhoa_approach_action
-   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+install(
+    TARGETS
+    nhoa_approach_action_node
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(
+    TARGETS
+    nhoa_approach_action
+    DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
 
 ## Mark cpp header files for installation
 install(DIRECTORY include/${PROJECT_NAME}/
