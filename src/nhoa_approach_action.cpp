@@ -49,8 +49,7 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   n.param<bool>("test_without_hri", test_, false);
   n.param<double>("person_max_dist", person_max_dist_, 4.0); // meters
   n.param<bool>("move_close", move_closer_, false);
-  n.param<double>("person_max_angle_diff", person_max_angle_,
-                  0.79); // 45º approx
+  n.param<double>("person_max_angle_diff", person_max_angle_, 0.4);
   n.param<double>("control_frequency", control_frequency_, 1.0);
   // std::string people_topic = "";
   // n.param<std::string>("people_topic", people_topic, "people");

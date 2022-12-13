@@ -26,11 +26,11 @@ if __name__ == '__main__':
     rospy.sleep(5.0)
     rospy.loginfo("Sending Approach goal")
     agoal =ApproachGoal()
-    agoal.target_id = "actor_103"
+    agoal.target_id = "-1"
     ac.send_goal(agoal)
     rospy.loginfo("Approach goal sent!")
     rospy.loginfo("Executing for 40 seconds")
-    rospy.sleep(40.0)
+    rospy.sleep(60.0)
     rospy.loginfo("Cancelling Approach action and exiting")
     ac.cancel_all_goals()
     
