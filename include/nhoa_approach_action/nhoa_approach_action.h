@@ -127,7 +127,7 @@ private:
 
   // Used to also perform approach
   bool move_closer_;
-  // bool is_navigating_;
+  float person_distance_;
 
   // ros::Subscriber people_sub_;
   // people_msgs::People people_;

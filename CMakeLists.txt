@@ -3,11 +3,7 @@ project(nhoa_approach_action)
 
 add_definitions(-std=c++11)
 
-option(BUILD_ROS4HRI_SUPPORT "Use ros4hri messages " ON)
 
-if(BUILD_ROS4HRI_SUPPORT)
-  add_compile_definitions(ROS4HRI)
-endif()
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -21,9 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
   move_base_msgs
   nav_msgs
   #people_msgs
-  #if(BUILD_ROS4HRI_SUPPORT)
-    hri_msgs
-  #endif()
   hri_msgs
   rosconsole
   roscpp

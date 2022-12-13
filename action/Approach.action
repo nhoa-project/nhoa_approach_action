@@ -7,5 +7,5 @@ string result
 uint32 value
 ---
 # Feedback. Current robot position
-#geometry_msgs/PoseStamped base_position
+float32 person_distance
 string text

@@ -57,6 +57,8 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   n.param<std::string>("robot_frame", robot_base_frame_, "base_link");
   n.param<std::string>("global_frame", global_frame_, "map");
 
+  person_distance_ = 100.0;
+
   ros::NodeHandle nh;
   if (!test_) {
     std::string hri_id_topic = "";
@@ -79,7 +81,8 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
       "move_base", true); // true-> do not need ros::spin()
   ROS_INFO("Waiting for move_base action server to start...");
   moveBaseClient_->waitForServer();
-  ROS_INFO("Move_base action client connected!");
+  ROS_INFO("\n\n\nMove_base action client connected!\n\n\n");
+  ros::Duration(10.0).sleep();
 
   // Initialize action server
   ROS_INFO("Initializing APPROACH action server...");
@@ -90,7 +93,7 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
 
   // start action server
   ApprActionServer_->start();
-  ROS_INFO("APPROACH action server started!");
+  ROS_INFO("\n\n\n\nAPPROACH action server started!\n\n\n\n");
 }
 
 Nhoa_approach_action::~Nhoa_approach_action() {}
@@ -191,6 +194,8 @@ void Nhoa_approach_action::computeApproachGoal(
     geometry_msgs::PoseStamped &pose_goal) {
   float dist = std::sqrt(p.transform.translation.x * p.transform.translation.x +
                          p.transform.translation.y * p.transform.translation.y);
+  // ROS_INFO("\n\n\nPEOPLE DISTANCE: %.2f\n\n\n", dist);
+  person_distance_ = dist;
   if (dist >= person_max_dist_) {
     float angle =
         std::atan2(p.transform.translation.y, p.transform.translation.x);
@@ -328,15 +333,16 @@ void Nhoa_approach_action::approachCallback(
     actionlib::SimpleClientGoalState state = moveBaseClient_->getState();
 
     // If movebase SUCCEEDED OR ACTIVE, return ok for our action
-    if (state == actionlib::SimpleClientGoalState::SUCCEEDED ||
-        state == actionlib::SimpleClientGoalState::ACTIVE ||
-        state == actionlib::SimpleClientGoalState::PREEMPTED) {
-      apprFeedback_.text = "Running";
-    } else {
-      // Otherwise, communicate a movebase error
-      apprFeedback_.text = "Movebase error";
-    }
+    // if (state == actionlib::SimpleClientGoalState::SUCCEEDED ||
+    //    state == actionlib::SimpleClientGoalState::ACTIVE ||
+    //    state == actionlib::SimpleClientGoalState::PREEMPTED) {
+    apprFeedback_.text = "Running";
+    //} else {
+    // Otherwise, communicate a movebase error
+    //  apprFeedback_.text = "Movebase error";
+    //}
 
+    apprFeedback_.person_distance = person_distance_;
     // push the feedback out
     // geometry_msgs::PoseStamped aux;
     // aux.header = new_pose.header;
