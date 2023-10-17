@@ -236,6 +236,7 @@ void Nhoa_approach_action::approachCallback(
 
   // people_msgs::Person person;
   std::string id = goal->target_id;
+  bool follow_mode = goal->mode == goal->FOLLOW;
   geometry_msgs::TransformStamped tfperson;
   bool found;
   if (test_)
@@ -342,6 +343,7 @@ void Nhoa_approach_action::approachCallback(
     //}
 
     apprFeedback_.person_distance = person_distance_;
+
     // push the feedback out
     // geometry_msgs::PoseStamped aux;
     // aux.header = new_pose.header;
@@ -349,6 +351,14 @@ void Nhoa_approach_action::approachCallback(
     // aux.pose.orientation = new_pose.pose.pose.orientation;
     // nwfeedback_.base_position = aux;
     ApprActionServer_->publishFeedback(apprFeedback_);
+
+    if(!follow_mode && apprFeedback_.person_distance < person_max_dist_) // Approach person -> action completed successfully
+    {
+      apprResult_.result = "Person approached";
+      apprResult_.value = 0;
+      ApprActionServer_->setSucceeded(apprResult_, "Approach succeded");
+      return;
+    }
 
     // ros::WallDuration dur = ros::WallTime::now() - startt;
     // printf("Loop time: %.4f secs\n", dur.toSec());
