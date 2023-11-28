@@ -47,7 +47,7 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   // _2); dsrv_->setCallback(cb);
 
   n.param<bool>("test_without_hri", test_, false);
-  n.param<double>("person_max_dist", person_max_dist_, 1.0); // meters
+  n.param<double>("person_max_dist", person_max_dist_, 4.0); // meters
   n.param<bool>("move_close", move_closer_, false);
   n.param<double>("person_max_angle_diff", person_max_angle_, 0.4);
   n.param<double>("control_frequency", control_frequency_, 1.0);
@@ -77,7 +77,7 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
   //    people_topic.c_str(), 1, &Nhoa_approach_action::peopleCallback, this);
 
   moveBaseClient_ = std::make_shared<moveBaseClient>(
-      "move_base_flex/move_base", true); // true-> do not need ros::spin()
+      "move_base", true); // true-> do not need ros::spin()
   ROS_INFO("Waiting for move_base action server to start...");
   moveBaseClient_->waitForServer();
   ROS_INFO("\n\n\nMove_base action client connected!\n\n\n");
@@ -261,7 +261,7 @@ void Nhoa_approach_action::approachCallback(
 
   // Now compute the goal
   // First check the orientation
-  mbf_msgs::MoveBaseGoal g;
+  move_base_msgs::MoveBaseGoal g;
   // goal in robot frame
   geometry_msgs::PoseStamped pose_goal_prev;
   geometry_msgs::PoseStamped pose_goal = computeRotationGoal(tfperson);
@@ -271,8 +271,6 @@ void Nhoa_approach_action::approachCallback(
   }
   // transform goal from robot base to global frame
   g.target_pose = transformPoseTo(pose_goal, global_frame_);
-  g.controller = "PalLocalPlanner";
-  g.planner = "GlobalPlanner";
   moveBaseClient_->sendGoal(g);
   pose_goal_prev = g.target_pose;
   // is_navigating = true;
@@ -335,14 +333,12 @@ void Nhoa_approach_action::approachCallback(
       // transform goal from robot base to global frame
       g.target_pose = transformPoseTo(pose_goal, global_frame_);
 
-      // if ( sqrt( pow(g.target_pose.pose.position.x-pose_goal_prev.pose.position.x, 2) + pow(g.target_pose.pose.position.y-pose_goal_prev.pose.position.y, 2)) > 0.1  ) { 
-        g.controller = "PalLocalPlanner";
-        g.planner = "GlobalPlanner";
+      if ( sqrt( pow(g.target_pose.pose.position.x-pose_goal_prev.pose.position.x, 2) + pow(g.target_pose.pose.position.y-pose_goal_prev.pose.position.y, 2)) > 0.1  ) { 
         moveBaseClient_->sendGoal(g);
         pose_goal_prev = g.target_pose;
 
         std::cout << "Sent new goal: " << g.target_pose.pose << std::endl;
-      // }
+    }
     // Posible states:
     // PENDING, ACTIVE, RECALLED, REJECTED, PREEMPTED, ABORTED, SUCCEEDED, LOST
     actionlib::SimpleClientGoalState state = moveBaseClient_->getState();
