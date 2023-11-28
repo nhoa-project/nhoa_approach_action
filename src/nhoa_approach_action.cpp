@@ -137,18 +137,18 @@ bool Nhoa_approach_action::getPersonFromHRI(
   lmutex_.unlock();
   std::string id_frame = "body_";
   // first, check the target_id
-  if (id == "-1") {
-    // we use the first person if exists
-    if (!list.empty()) {
-      id_frame = id_frame + list[0];
-    } else
-      return false;
-  } else {
-    // we use directly the id to get the TF
-    id_frame = id_frame + id;
-  }
+  // if (id == "-1") {
+  //   // we use the first person if exists
+  //   if (!list.empty()) {
+  //     id_frame = id_frame + list[0];
+  //   } else
+  //     return false;
+  // } else {
+  //   // we use directly the id to get the TF
+  //   id_frame = id_frame + id;
+  // }
   // Now, we look for the frame in robot base frame
-  return getPerson(id_frame, p);
+  return getPerson("human", p);
 }
 
 bool Nhoa_approach_action::getPerson(const std::string frame_id,
@@ -157,11 +157,13 @@ bool Nhoa_approach_action::getPerson(const std::string frame_id,
   // TODO: add checking if frame_id == -1 to take the first one.
 
   geometry_msgs::TransformStamped transformStamped;
+
   try {
     transformStamped =
         tf_->lookupTransform(robot_base_frame_, frame_id, ros::Time(0));
   } catch (tf2::TransformException &ex) {
     ROS_WARN("Approach. Error getPerson: %s", ex.what());
+    ROS_INFO("Approach - ERROR");
     // ros::Duration(1.0).sleep();
     // continue;
     return false;
@@ -261,6 +263,7 @@ void Nhoa_approach_action::approachCallback(
   // First check the orientation
   move_base_msgs::MoveBaseGoal g;
   // goal in robot frame
+  geometry_msgs::PoseStamped pose_goal_prev;
   geometry_msgs::PoseStamped pose_goal = computeRotationGoal(tfperson);
   // check the distance
   if (move_closer_) {
@@ -269,6 +272,7 @@ void Nhoa_approach_action::approachCallback(
   // transform goal from robot base to global frame
   g.target_pose = transformPoseTo(pose_goal, global_frame_);
   moveBaseClient_->sendGoal(g);
+  pose_goal_prev = g.target_pose;
   // is_navigating = true;
 
   // actionlib::SimpleClientGoalState state = moveBaseClient_->getState();
@@ -320,14 +324,21 @@ void Nhoa_approach_action::approachCallback(
     }
 
     pose_goal = computeRotationGoal(tfperson);
-    // check the distance
-    if (move_closer_) {
-      computeApproachGoal(tfperson, pose_goal);
-    }
-    // transform goal from robot base to global frame
-    g.target_pose = transformPoseTo(pose_goal, global_frame_);
-    moveBaseClient_->sendGoal(g);
 
+
+      // check the distance
+      if (move_closer_) {
+        computeApproachGoal(tfperson, pose_goal);
+      }
+      // transform goal from robot base to global frame
+      g.target_pose = transformPoseTo(pose_goal, global_frame_);
+
+      if ( sqrt( pow(g.target_pose.pose.position.x-pose_goal_prev.pose.position.x, 2) + pow(g.target_pose.pose.position.y-pose_goal_prev.pose.position.y, 2)) > 0.1  ) { 
+        moveBaseClient_->sendGoal(g);
+        pose_goal_prev = g.target_pose;
+
+        std::cout << "Sent new goal: " << g.target_pose.pose << std::endl;
+    }
     // Posible states:
     // PENDING, ACTIVE, RECALLED, REJECTED, PREEMPTED, ABORTED, SUCCEEDED, LOST
     actionlib::SimpleClientGoalState state = moveBaseClient_->getState();
