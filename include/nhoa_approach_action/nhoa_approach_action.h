@@ -12,7 +12,6 @@
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <move_base_msgs/MoveBaseAction.h>
-#include <mbf_msgs/MoveBaseAction.h>
 #include <nav_msgs/GetPlan.h>
 #include <nav_msgs/Odometry.h>
 #include <nhoa_approach_action/ApproachAction.h>
@@ -100,7 +99,7 @@ private:
                    std::string frame_out);
 
   // CLIENT FOR THE MOVE_BASE SERVER
-  typedef actionlib::SimpleActionClient<mbf_msgs::MoveBaseAction>
+  typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
       moveBaseClient;
   std::shared_ptr<moveBaseClient> moveBaseClient_;
 
