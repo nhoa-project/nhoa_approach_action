@@ -368,6 +368,7 @@ void Nhoa_approach_action::approachCallback(
       apprResult_.result = "Person approached";
       apprResult_.value = 0;
       ApprActionServer_->setSucceeded(apprResult_, "Approach succeded");
+      moveBaseClient_->cancelAllGoals();
       return;
     }
 
