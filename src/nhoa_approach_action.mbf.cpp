@@ -148,7 +148,7 @@ bool Nhoa_approach_action::getPersonFromHRI(
   //   id_frame = id_frame + id;
   // }
   // Now, we look for the frame in robot base frame
-  return getPerson("human", p);
+  return getPerson("target", p);
 }
 
 bool Nhoa_approach_action::getPerson(const std::string frame_id,
