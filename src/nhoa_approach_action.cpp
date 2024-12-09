@@ -48,6 +48,8 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
 
   n.param<bool>("test_without_hri", test_, false);
   n.param<double>("person_max_dist", person_max_dist_, 2.0); // meters
+  n.param<double>("th_min_tf_diff", th_min_tf_diff_, 0.25); // meters
+
   n.param<bool>("move_close", move_closer_, false);
   n.param<double>("person_max_angle_diff", person_max_angle_, 0.4);
   n.param<double>("control_frequency", control_frequency_, 1.0);
@@ -148,28 +150,65 @@ bool Nhoa_approach_action::getPersonFromHRI(
   //   id_frame = id_frame + id;
   // }
   // Now, we look for the frame in robot base frame
+  sleep(5);
   return getPerson("target", p);
 }
+  // TODO: add checking if frame_id == -1 to take the first one.
 
 bool Nhoa_approach_action::getPerson(const std::string frame_id,
                                      geometry_msgs::TransformStamped &p) {
-
-  // TODO: add checking if frame_id == -1 to take the first one.
-
   geometry_msgs::TransformStamped transformStamped;
+  geometry_msgs::PoseStamped p_prev;
+  bool found = false;
+  bool timeout = false;
+  const double tolerance = th_min_tf_diff_;//0.15; // 15 cm tolerance for stabilization
+  ros::Rate r(5); // 5 Hz rate to check the position
+  ros::Time start_time = ros::Time::now();
+  const double timeout_duration = 10.0; // Timeout after 10 seconds
 
-  try {
-    transformStamped =
-        tf_->lookupTransform(robot_base_frame_, frame_id, ros::Time(0));
-  } catch (tf2::TransformException &ex) {
-    ROS_WARN("Approach. Error getPerson: %s", ex.what());
-    ROS_INFO("Approach - ERROR");
-    // ros::Duration(1.0).sleep();
-    // continue;
-    return false;
+  while (!found && !timeout) {
+    try {
+      transformStamped =
+          tf_->lookupTransform(robot_base_frame_, frame_id, ros::Time(0));
+    } catch (tf2::TransformException &ex) {
+      ROS_WARN("Approach. Error getPerson: %s", ex.what());
+      ROS_INFO("Approach - ERROR");
+      return false;
+    }
+
+    // Check distance between current and previous transform
+    if (p_prev.header.stamp != ros::Time(0)) { // Ensure p_prev is initialized
+      double dx = transformStamped.transform.translation.x - p_prev.pose.position.x;
+      double dy = transformStamped.transform.translation.y - p_prev.pose.position.y;
+      double dz = transformStamped.transform.translation.z - p_prev.pose.position.z;
+      double distance = std::sqrt(dx * dx + dy * dy + dz * dz);
+
+      if (distance <= tolerance) {
+        found = true; // Position has stabilized
+      }
+    }
+
+    // Update p_prev with the current transform
+    p_prev.pose.position.x = transformStamped.transform.translation.x;
+    p_prev.pose.position.y = transformStamped.transform.translation.y;
+    p_prev.pose.position.z = transformStamped.transform.translation.z;
+    p_prev.header.stamp = transformStamped.header.stamp;
+
+    // Check timeout
+    if ((ros::Time::now() - start_time).toSec() > timeout_duration) {
+      timeout = true;
+      ROS_WARN("Approach. Timeout while waiting for position to stabilize.");
+    }
+
+    r.sleep();
   }
-  p = transformStamped;
-  return true;
+
+  if (found) {
+    p = transformStamped;
+    return true;
+  }
+
+  return false; // Return false if timed out or failed to stabilize
 }
 
 geometry_msgs::PoseStamped Nhoa_approach_action::computeRotationGoal(

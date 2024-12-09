@@ -11,10 +11,12 @@
 		<param name="hri_ids_topic" type="string" value="humans/bodies/tracked" />
 		<param name="person_max_angle_diff" type="double" value="0.4" /> 
 		<param name="control_frequency" type="double" value="1.0" />
-		<!--<param name="people_topic" type="string" value="people" />-->
 		<param name="robot_frame" type="string" value="base_link" />
 		<param name="move_close" type="bool" value="true" />
 		<param name="person_max_dist" type="double" value="1.6" />
+			<!-- distance to consider that TF stabilized, between previous and current/>-->
+
+		<param name="th_min_tf_diff" type="double" value="0.25" />
 
 	</node>
 

@@ -120,6 +120,8 @@ private:
   //
   double person_max_dist_;
   //
+  double th_min_tf_diff_;
+  //
   double person_max_angle_;
   //
   std::string robot_base_frame_;
