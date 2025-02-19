@@ -16,6 +16,7 @@
 #include <nav_msgs/Odometry.h>
 #include <nhoa_approach_action/ApproachAction.h>
 //#include <people_msgs/People.h>
+#include <std_msgs/Int16.h>
 #include <hri_msgs/IdsList.h>
 #include <ros/ros.h>
 #include <stdio.h>
