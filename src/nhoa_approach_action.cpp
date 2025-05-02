@@ -376,7 +376,7 @@ void Nhoa_approach_action::approachCallback(
         moveBaseClient_->sendGoal(g);
         pose_goal_prev = g.target_pose;
 
-        std::cout << "Sent new goal: " << g.target_pose.pose << std::endl;
+        ROS_INFO_STREAM("Sent new goal: " << g.target_pose.pose);
     }
     // Posible states:
     // PENDING, ACTIVE, RECALLED, REJECTED, PREEMPTED, ABORTED, SUCCEEDED, LOST
