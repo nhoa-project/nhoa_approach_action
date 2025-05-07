@@ -65,6 +65,8 @@ Nhoa_approach_action::Nhoa_approach_action(tf2_ros::Buffer *tf) {
                          "humans/bodies/tracked");
     hri_ids_sub_ = nh.subscribe<hri_msgs::IdsList>(
         hri_id_topic.c_str(), 1, &Nhoa_approach_action::idListCallback, this);
+    
+    max_distance_sub_ = nh.subscribe<std_msgs::Int16>("nhoa/approach/max_distance", 1, &Nhoa_approach_action::MaxDistanceCallback, this);
   }
   // Dynamic reconfigure
   // dsrv_ = new
@@ -458,6 +460,26 @@ void Nhoa_approach_action::idListCallback(
   id_list_ = msg->ids;
   lmutex_.unlock();
 }
+
+void Nhoa_approach_action::MaxDistanceCallback(
+    const std_msgs::Int16::ConstPtr &msg)
+    {
+      lmutex_.lock();
+      switch (msg->data)
+      {
+        case 0:
+          person_max_dist_ = 1;
+        break;
+        case 1:
+          person_max_dist_ = 1.5;
+        break;
+        case 2:
+          person_max_dist_ = 2;
+        break;
+      }
+      lmutex_.unlock();
+    }
+)
 
 geometry_msgs::PoseStamped
 Nhoa_approach_action::transformPoseTo(const geometry_msgs::PoseStamped &pose_in,
