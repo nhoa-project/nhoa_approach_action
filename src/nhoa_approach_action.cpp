@@ -234,7 +234,7 @@ void Nhoa_approach_action::computeApproachGoal(
     geometry_msgs::PoseStamped &pose_goal) {
   float dist = std::sqrt(p.transform.translation.x * p.transform.translation.x +
                          p.transform.translation.y * p.transform.translation.y);
-  // ROS_INFO("\n\n\nPEOPLE DISTANCE: %.2f\n\n\n", dist);
+  ROS_INFO("\n\n\nPEORSON DISTANCE APPROACH goal: %.2f\n\n\n", dist);
   person_distance_ = dist;
   if (dist >= person_max_dist_) {
     float angle =
